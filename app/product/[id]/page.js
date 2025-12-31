@@ -1,28 +1,44 @@
 import { createClient } from '@supabase/supabase-js';
 import ProductView from '../../components/ProductView';
 
-// To sprawia, że strona nie jest cache'owana na sztywno, tylko pobiera świeże dane
-export const revalidate = 0; 
+// TURBO MODE:
+// 1. Cache'uj stronę przez 3600 sekund (1 godzinę). 
+// Klient dostaje gotowca z pamięci RAM serwera.
+export const revalidate = 3600; 
+
+// Pozwala generować nowe strony dla produktów dodanych PO zbudowaniu aplikacji
+export const dynamicParams = true; 
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// To jest funkcja asynchroniczna SERWERA. Przeglądarka tego nie widzi.
-export default async function ProductPage({ params }) {
+// Ta funkcja uruchamia się PODCZAS BUDOWANIA (Deploy)
+// Pobiera wszystkie ID produktów i tworzy dla nich gotowe pliki HTML
+export async function generateStaticParams() {
+  const { data: products } = await supabase.from('products').select('id');
   
-  // 1. Serwer Vercel pobiera dane (super szybkie łącze w USA)
+  if (!products) return [];
+
+  return products.map((product) => ({
+    id: product.id.toString(),
+  }));
+}
+
+export default async function ProductPage({ params }) {
   const { data: product } = await supabase
     .from('products')
     .select('*')
     .eq('id', params.id)
     .single();
 
-  // 2. Jeśli nie ma produktu, zwróć prosty błąd
   if (!product) {
-    return <div>Nie znaleziono produktu</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F9F7F2]">
+        <h1 className="text-2xl font-bold text-gray-400">Produkt nie istnieje</h1>
+      </div>
+    );
   }
 
-  // 3. Wyślij do przeglądarki gotowy, wypełniony komponent
   return <ProductView product={product} />;
 }

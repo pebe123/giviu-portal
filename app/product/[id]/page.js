@@ -85,9 +85,19 @@ export default function ProductPage({ params }) {
               {product.brand}
             </span>
             
-            {/* Placeholder na zdjęcie */}
-            <div className="w-64 h-80 bg-gray-100 rounded-lg shadow-xl relative flex items-center justify-center text-gray-400">
-                [ZDJĘCIE]
+        {/* Prawdziwe Zdjęcie z Bazy */}
+            <div className="w-full h-full flex items-center justify-center p-8">
+              {product.image_url ? (
+                <img 
+                  src={product.image_url} 
+                  alt={product.name} 
+                  className="w-full h-full object-contain drop-shadow-xl"
+                />
+              ) : (
+                <div className="w-64 h-80 bg-gray-100 rounded-lg shadow-xl flex items-center justify-center text-gray-400">
+                  [Brak zdjęcia w bazie]
+                </div>
+              )}
             </div>
 
             <button className="absolute bottom-8 right-8 bg-white p-4 rounded-2xl shadow-lg hover:scale-105 transition-transform">

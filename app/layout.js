@@ -1,13 +1,14 @@
 import './globals.css'
 
-export const metadata = {
-  title: 'Giviu - Premium Business Gifts',
-}
-
 export default function RootLayout({ children }) {
   return (
     <html lang="pl">
-      <body>{children}</body>
+      <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      <body>
+        {children}
+      </body>
     </html>
   )
 }
